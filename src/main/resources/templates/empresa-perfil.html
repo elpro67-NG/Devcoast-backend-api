@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:replace="~{fragments/nautico :: meta}"></th:block>
+    <title th:text="${nombreEmpresa} + ' | DevCoast'">Empresa | DevCoast</title>
+    <th:block th:replace="~{fragments/nautico :: assets}"></th:block>
+    <link rel="stylesheet" th:href="@{/CSS/nautico-pase.css}">
+    <link rel="stylesheet" th:href="@{/CSS/nautico-empresa-publica.css}">
+    <script th:src="@{/JS/empleos-pase.js}" defer></script>
+</head>
+
+<body th:classappend="${session.usuarioActualTipo == 'empresa'} ? 'empresa'"
+    th:with="esEmpresa=${session.usuarioActualTipo == 'empresa'}">
+    <a class="skip" href="#contenido">Saltar al contenido</a>
+
+    <div class="app">
+        <aside th:replace="~{fragments/nautico :: sidebar(${esEmpresa} ? 'directorio' : 'empleos')}"></aside>
+        <div th:replace="~{fragments/nautico :: scrim}"></div>
+
+        <div class="main">
+            <header
+                th:replace="~{fragments/nautico :: topbar(${esEmpresa} ? '/talentos' : '/empleos', ${esEmpresa} ? 'Buscar talentos' : 'Buscar ofertas', ${esEmpresa} ? 'Busca por nombre, cargo o tecnología' : 'Busca por cargo o empresa', null)}">
+            </header>
+
+            <main class="content" id="contenido">
+                <p class="flash" role="status" th:if="${flashMessage != null}"
+                    th:classappend="${flashType == 'error'} ? 'error'" th:text="${flashMessage}">Aviso</p>
+
+                <div class="head">
+                    <div>
+                        <div class="eyebrow">// perfil de empresa</div>
+                        <h1 th:text="${nombreEmpresa}">Empresa</h1>
+                        <p class="sub" th:if="${sectorEmpresa != null}" th:text="${sectorEmpresa}">Sector</p>
+                    </div>
+                </div>
+
+                <section class="pn ep-hero" aria-label="Sobre la empresa">
+                    <div class="ep-av" aria-hidden="true">
+                        <span th:text="${inicial}">E</span>
+                        <img th:if="${logoUrl != null}" th:src="${logoUrl}" alt="" onerror="this.remove()">
+                    </div>
+                    <div class="ep-info">
+                        <div class="ep-meta">
+                            <span class="ep-chip" th:if="${sectorEmpresa != null}"
+                                th:text="${sectorEmpresa}">Sector</span>
+                            <span class="ep-chip" th:if="${tamanoEmpresa != null}"
+                                th:text="${tamanoEmpresa}">Tamaño</span>
+                            <span class="ep-chip on" th:if="${empleosActivos != null}"
+                                th:text="${#lists.size(empleosActivos)} + (${#lists.size(empleosActivos)} == 1 ? ' oferta activa' : ' ofertas activas')">0
+                                ofertas activas</span>
+                        </div>
+                        <p class="ep-bio"
+                            th:if="${descripcionEmpresa != null and !#strings.isEmpty(descripcionEmpresa)}"
+                            th:text="${descripcionEmpresa}">Descripción</p>
+                        <a class="lnk" th:if="${webEmpresa != null and !#strings.isEmpty(webEmpresa)}"
+                            th:href="${webEmpresa}" target="_blank" rel="noopener noreferrer"
+                            th:text="${webEmpresa} + ' ↗'">sitio.com</a>
+                    </div>
+                </section>
+
+                <h2 class="ep-h">Posiciones abiertas</h2>
+
+                <div class="reqs" th:if="${!#lists.isEmpty(tarjetas)}">
+                    <th:block th:each="t, st : ${tarjetas}">
+                        <th:block th:replace="~{fragments/pase :: ticket(${t}, false, ${st.index})}"></th:block>
+                    </th:block>
+                </div>
+
+                <th:block th:if="${#lists.isEmpty(tarjetas)}">
+                    <div
+                        th:replace="~{fragments/nautico :: empty('Mar en calma.', 'Esta empresa no tiene posiciones abiertas en este momento.', '/empleos', 'Ver otras ofertas')}">
+                    </div>
+                </th:block>
+            </main>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/nautico :: toast}"></div>
+</body>
+
+</html>
